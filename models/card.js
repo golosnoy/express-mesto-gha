@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   owner: {
     type: ObjectId,
-    required: true,
+    // required: true,
   },
   likes: {
     type: Array,
