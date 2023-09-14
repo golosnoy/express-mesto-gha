@@ -1,5 +1,16 @@
 const User = require('../models/user');
 
+const validateId = (id) => {
+  if (id.split('').length === 24) {
+    const pattern = /[0-9a-z]{24}/;
+    if (pattern.test(id)) {
+      return true
+    }
+  } else {
+    return false
+  }
+}
+
 const getUsers = (req,res) => {
   return User.find()
     .then((users) => {
@@ -12,21 +23,27 @@ const getUsers = (req,res) => {
 
 const getUserById = (req, res) => {
   const {id} = req.params;
+  if (!validateId(id)) {
+    return res.status(400).send({
+      "message": "Передан некорректный ID"
+    })
+  }
   return User.findById(id)
     .then(user => {
-      return res.status(200).send(user);
-    })
-    .catch((err) => {
-      if ((err.name === 'CastError')) {
+      if (!user) {
         return res.status(404).send({
           "message": "Запрашиваемый пользователь не найден"
         })
       }
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      console.log(err);
       return res.status(500).send({
         "message": "Ошибка сервера"
       })
     });
-}
+  }
 
 const createUser = (req,res) => {
   return User.create({...req.body})
@@ -46,11 +63,15 @@ const createUser = (req,res) => {
 }
 
 const updateProfile = (req,res) => {
-  return User.findByIdAndUpdate(req.user._id, { $set: { name: req.body.name }}, { returnDocument: 'after' })
+  return User.findByIdAndUpdate(req.user._id, { $set: { name: req.body.name }}, {
+    returnDocument: 'after',
+    runValidators: true,
+    new: true
+  })
   .then((user) => {
     return res.status(200).send(user);
   })
-  .catch(() => {
+  .catch((err) => {
     if ((err.name === 'CastError')) {
       return res.status(404).send({
         "message": "Запрашиваемый пользователь не найден"
