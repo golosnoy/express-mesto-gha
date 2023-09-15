@@ -69,9 +69,17 @@ const updateProfile = (req,res) => {
     new: true
   })
   .then((user) => {
+    if (!user) {
+      return res.status(404).send({
+        "message": "Хуйня какая-то"
+      })
+    }
+    // const {name, about} = user;
+    // console.log(name, about)
     return res.status(200).send(user);
   })
   .catch((err) => {
+    console.log(err)
     if ((err.name === 'CastError')) {
       return res.status(404).send({
         "message": "Запрашиваемый пользователь не найден"
