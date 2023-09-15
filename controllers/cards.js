@@ -29,8 +29,8 @@ const deleteCardById = (req, res) => {
     })
   }
   return Card.deleteOne({_id: id})
-    .then((card) => {
-      if (!card) {
+    .then((answer) => {
+      if (answer.deletedCount === 0) {
         return res.status(404).send({
           "message": "Карточка не найдена"
         })
