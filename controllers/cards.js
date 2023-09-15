@@ -1,5 +1,16 @@
 const Card = require('../models/card');
 
+const validateId = (id) => {
+  if (id.split('').length === 24) {
+    const pattern = /[0-9a-z]{24}/;
+    if (pattern.test(id)) {
+      return true
+    }
+  } else {
+    return false
+  }
+}
+
 const getCards = (req,res) => {
   return Card.find()
     .then((cards) => {
@@ -50,14 +61,22 @@ const createCard = (req,res) => {
 
 const likeCard = (req, res) => {
   const {id} = req.params;
-  console.log(id)
-  console.log(req.user._id)
+  if (!validateId(id)) {
+    return res.status(400).send({
+      "message": "Передан некорректный ID"
+    })
+  }
   return Card.findByIdAndUpdate(
     id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
   .then((card) => {
+    if (!card) {
+      return res.status(404).send({
+        "message": "Карточка не найдена"
+      })
+    }
     return res.status(200).send(card)
   })
   .catch((err) => {
@@ -68,12 +87,24 @@ const likeCard = (req, res) => {
   })
 }
 
-const dislikeCard = (req, res) => Card.findByIdAndUpdate(
-  req.params.id,
+const dislikeCard = (req, res) => {
+  const {id} = req.params;
+  if (!validateId(id)) {
+    return res.status(400).send({
+      "message": "Передан некорректный ID"
+    })
+  }
+  Card.findByIdAndUpdate(
+  id,
   { $pull: { likes: req.user._id } },
   { new: true },
 )
 .then((card) => {
+  if (!card) {
+    return res.status(404).send({
+      "message": "Карточка не найдена"
+    })
+  }
   return res.status(200).send(card)
 })
 .catch((err) => {
@@ -82,5 +113,6 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
     "message": "Ошибка сервера"
   })
 })
+}
 
 module.exports = { getCards, deleteCardById, createCard, likeCard, dislikeCard }
