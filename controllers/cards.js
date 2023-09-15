@@ -23,19 +23,21 @@ const getCards = (req,res) => {
 
 const deleteCardById = (req, res) => {
   const {id} = req.params;
+  console.log(id)
   if (!validateId(id)) {
     return res.status(400).send({
       "message": "Передан некорректный ID"
     })
   }
-  return Card.deleteOne({_id: id})
+  return Card.findByIdAndDelete(id)
     .then((answer) => {
+      console.log(answer)
       if (answer.deletedCount === 0) {
         return res.status(404).send({
           "message": "Карточка не найдена"
         })
       }
-      return res.status(200).send(card);
+      return res.status(200).send(answer);
     })
     .catch((err) => {
       console.log(err);
