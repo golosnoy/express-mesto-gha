@@ -63,7 +63,8 @@ const createUser = (req,res) => {
 }
 
 const updateProfile = (req,res) => {
-  return User.findByIdAndUpdate(req.user._id, { $set: { name: req.body.name }}, {
+  console.log(req.user._id)
+  return User.findByIdAndUpdate('6503606f8fcafeb911b79934', { $set: { name: req.body.name }}, {
     returnDocument: 'after',
     runValidators: true,
     new: true
@@ -71,12 +72,11 @@ const updateProfile = (req,res) => {
   .then((user) => {
     if (!user) {
       return res.status(404).send({
-        "message": "Хуйня какая-то"
+        "message": "Пользователь не найден"
       })
     }
-    // const {name, about} = user;
-    // console.log(name, about)
-    return res.status(200).send(user);
+    const {name, about} = user;
+    return res.status(200).send({name, about});
   })
   .catch((err) => {
     console.log(err)
