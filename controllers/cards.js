@@ -32,7 +32,7 @@ const deleteCardById = (req, res) => {
   return Card.findByIdAndDelete(id)
     .then((answer) => {
       console.log(answer)
-      if (answer.deletedCount === 0) {
+      if (!answer) {
         return res.status(404).send({
           "message": "Карточка не найдена"
         })
