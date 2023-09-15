@@ -63,8 +63,7 @@ const createUser = (req,res) => {
 }
 
 const updateProfile = (req,res) => {
-  console.log(req.user._id)
-  return User.findByIdAndUpdate(req.user._id, { $set: { name: req.body.name }}, {
+  return User.findByIdAndUpdate(req.user._id, { $set: { name: req.body.name, about: req.body.about }}, {
     returnDocument: 'after',
     runValidators: true,
     new: true
@@ -98,7 +97,6 @@ const updateProfile = (req,res) => {
 
 const updateAvatar = (req,res) => {
   const id = req.body._id;
-  console.log(id)
   return User.findByIdAndUpdate(req.user._id, { $set: { avatar: req.body.avatar }}, { returnDocument: 'after' })
   .then((user) => {
     return res.status(200).send(user);
