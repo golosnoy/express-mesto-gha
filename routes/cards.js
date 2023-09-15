@@ -15,4 +15,10 @@ router.put('/cards/:id/likes', likeCard);
 
 router.delete('/cards/:id/likes', dislikeCard);
 
+router.all('*', function(req, res){
+  res.status(404).send({
+    "message": "Страница не найдена"
+  });
+});
+
 module.exports = router;
