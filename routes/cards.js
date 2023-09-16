@@ -5,7 +5,7 @@ router.get('/', (req,res) => {
   res.send('Helloooooo!')
 })
 
-router.get('/cards', getCards)
+router.get('/cards', getCards);
 
 router.delete('/cards/:id', deleteCardById);
 
@@ -17,7 +17,7 @@ router.delete('/cards/:id/likes', dislikeCard);
 
 router.all('*', function(req, res){
   res.status(404).send({
-    "message": "Страница не найдена"
+    'message': 'Страница не найдена'
   });
 });
 

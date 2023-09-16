@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 
-const validateId = (id) => {
+const isValidId = (id) => {
   if (id.split('').length === 24) {
     const pattern = /[0-9a-z]{24}/;
     if (pattern.test(id)) {
@@ -24,7 +24,7 @@ const getCards = (req,res) => {
 const deleteCardById = (req, res) => {
   const {id} = req.params;
   console.log(id)
-  if (!validateId(id)) {
+  if (!isValidId(id)) {
     return res.status(400).send({
       "message": "Передан некорректный ID"
     })
@@ -72,7 +72,7 @@ const createCard = (req,res) => {
 
 const likeCard = (req, res) => {
   const {id} = req.params;
-  if (!validateId(id)) {
+  if (!isValidId(id)) {
     return res.status(400).send({
       "message": "Передан некорректный ID"
     })
@@ -100,7 +100,7 @@ const likeCard = (req, res) => {
 
 const dislikeCard = (req, res) => {
   const {id} = req.params;
-  if (!validateId(id)) {
+  if (!isValidId(id)) {
     return res.status(400).send({
       "message": "Передан некорректный ID"
     })
