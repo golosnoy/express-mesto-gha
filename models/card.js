@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     type: ObjectId,
   },
   likes: {
-    type: Array,
+    type: [{ type: ObjectId }],
     default: [],
   },
   createdAt: {

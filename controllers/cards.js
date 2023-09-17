@@ -4,126 +4,110 @@ const isValidId = (id) => {
   if (id.split('').length === 24) {
     const pattern = /[0-9a-z]{24}/;
     if (pattern.test(id)) {
-      return true
+      return true;
     }
-  } else {
-    return false
   }
-}
+  return false;
+};
 
-const getCards = (req,res) => {
-  return Card.find()
-    .then((cards) => {
-      return res.status(200).send(cards);
-    })
-    .catch(() => res.status(500).send({
-      "message": "Ошибка сервера"
-    }));
-}
+const getCards = (req, res) => Card.find()
+  .then((cards) => res.status(200).send(cards))
+  .catch(() => res.status(500).send({
+    message: 'Ошибка сервера',
+  }));
 
 const deleteCardById = (req, res) => {
-  const {id} = req.params;
-  console.log(id)
+  const { id } = req.params;
   if (!isValidId(id)) {
     return res.status(400).send({
-      "message": "Передан некорректный ID"
-    })
+      message: 'Передан некорректный ID',
+    });
   }
   return Card.findByIdAndDelete(id)
     .then((card) => {
-      console.log(card)
       if (!card) {
         return res.status(404).send({
-          "message": "Карточка не найдена"
-        })
+          message: 'Карточка не найдена',
+        });
       }
       return res.status(200).send(card);
     })
     .catch((err) => {
-      console.log(err);
       if (err.name === 'CastError') {
-        return res.status(404).send({
-          "message": "Карточка не найдена"
-        })
+        return res.status(400).send({
+          message: 'Карточка не найдена',
+        });
       }
       return res.status(500).send({
-        "message": "Ошибка сервера"
-      })
+        message: 'Ошибка сервера',
+      });
     });
-}
+};
 
-const createCard = (req,res) => {
-  return Card.create({...req.body})
-  .then((card) => {
-    res.status(201).send(card)
-  })
+const createCard = (req, res) => Card.create({ ...req.body }).then((card) => {
+  res.status(201).send(card);
+})
   .catch((err) => {
-    console.log(err);
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       return res.status(400).send({
-        message: `${Object.values(err.errors).map((err) => err.message).join(", ")}`
-      })
+        message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
+      });
     }
     return res.status(500).send({
-      "message": "Ошибка сервера"
-    })
-  })
-}
+      message: 'Ошибка сервера',
+    });
+  });
 
 const likeCard = (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   if (!isValidId(id)) {
     return res.status(400).send({
-      "message": "Передан некорректный ID"
-    })
+      message: 'Передан некорректный ID',
+    });
   }
   return Card.findByIdAndUpdate(
     id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-  .then((card) => {
-    if (!card) {
-      return res.status(404).send({
-        "message": "Карточка не найдена"
-      })
-    }
-    return res.status(200).send(card)
-  })
-  .catch((err) => {
-    console.log(err)
-    return res.status(500).send({
-      "message": "Ошибка сервера"
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({
+          message: 'Карточка не найдена',
+        });
+      }
+      return res.status(200).send(card);
     })
-  })
-}
+    .catch(() => res.status(500).send({
+      message: 'Ошибка сервера',
+    }));
+};
 
 const dislikeCard = (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   if (!isValidId(id)) {
     return res.status(400).send({
-      "message": "Передан некорректный ID"
-    })
+      message: 'Передан некорректный ID',
+    });
   }
-  Card.findByIdAndUpdate(
-  id,
-  { $pull: { likes: req.user._id } },
-  { new: true },
-)
-.then((card) => {
-  if (!card) {
-    return res.status(404).send({
-      "message": "Карточка не найдена"
+  return Card.findByIdAndUpdate(
+    id,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  )
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({
+          message: 'Карточка не найдена',
+        });
+      }
+      return res.status(200).send(card);
     })
-  }
-  return res.status(200).send(card)
-})
-.catch((err) => {
-  console.log(err)
-  return res.status(500).send({
-    "message": "Ошибка сервера"
-  })
-})
-}
+    .catch(() => res.status(500).send({
+      message: 'Ошибка сервера',
+    }));
+};
 
-module.exports = { getCards, deleteCardById, createCard, likeCard, dislikeCard }
+module.exports = {
+  getCards, deleteCardById, createCard, likeCard, dislikeCard,
+};
