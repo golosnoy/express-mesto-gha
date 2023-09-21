@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/user');
 
 const isValidId = (id) => {
@@ -38,20 +40,29 @@ const getUserById = (req, res) => {
     });
 };
 
-const createUser = (req, res) => User.create({ ...req.body })
-  .then((user) => {
-    res.status(201).send(user);
-  })
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      return res.status(400).send({
-        message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
+const createUser = (req, res) => {
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+      email: req.body.email,
+      password: hash,
+    }))
+    .then((user) => {
+      res.status(201).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
+        });
+      }
+      return res.status(500).send({
+        message: 'Ошибка сервера',
       });
-    }
-    return res.status(500).send({
-      message: 'Ошибка сервера',
     });
-  });
+};
 
 const updateProfile = (req, res) => User.findByIdAndUpdate(req.user._id, {
   $set: {
@@ -118,6 +129,10 @@ const updateAvatar = (req, res) => User.findByIdAndUpdate(req.user._id, {
     });
   });
 
+const getCurrentUser = (req, res) => {
+  res.send(req.user);
+};
+
 module.exports = {
-  getUsers, getUserById, createUser, updateProfile, updateAvatar,
+  getUsers, getUserById, createUser, updateProfile, updateAvatar, getCurrentUser,
 };
