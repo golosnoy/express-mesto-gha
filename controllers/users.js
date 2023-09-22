@@ -51,14 +51,19 @@ const createUser = (req, res, next) => {
       email: req.body.email,
       password: hash,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }))
     .catch((err) => {
       if (err.code === 11000) {
         return res.status(409).send({
           message: 'Пользователь с таким email уже существует',
         });
       }
-      next(err);
+      next();
     });
 };
 
