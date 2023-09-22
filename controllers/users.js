@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 
+const UnauthorizedError = require('../errors/UnauthorizedError');
+
 const isValidId = (id) => {
   if (id.split('').length === 24) {
     const pattern = /[0-9a-z]{24}/;
@@ -40,7 +42,7 @@ const getUserById = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       name: req.body.name,
@@ -49,18 +51,14 @@ const createUser = (req, res) => {
       email: req.body.email,
       password: hash,
     }))
-    .then((user) => {
-      res.status(201).send(user);
-    })
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
+      if (err.code === 11000) {
+        return res.status(409).send({
+          message: 'Пользователь с таким email уже существует',
         });
       }
-      return res.status(500).send({
-        message: 'Ошибка сервера',
-      });
+      next(err);
     });
 };
 

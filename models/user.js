@@ -31,18 +31,19 @@ const userSchema = new mongoose.Schema({
       validator: (value) => validator.isEmail(value),
       message: '{VALUE} is not a valid email',
     },
-    password: {
-      type: String,
-      required: true,
-      minlength: [8, 'Пароль быть не менее 8 знаков'],
-      select: false,
-    },
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: [8, 'Пароль быть не менее 8 знаков'],
+    select: false,
   },
 });
 
 userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
+      console.log(user);
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
