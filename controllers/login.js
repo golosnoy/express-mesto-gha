@@ -8,7 +8,7 @@ const login = (req, res, next) => {
     .then((user) => {
       // eslint-disable-next-line no-unused-vars
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.status(200).send({ token }).cookie('jwt', token, {
+      res.status(200).send({ token: token }).cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
       });
