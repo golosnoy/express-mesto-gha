@@ -22,16 +22,18 @@ const deleteCardById = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     next(new ValidationError('Передан некорректный ID'));
+    return;
   }
-  return Card.findById(id)
+  Card.findById(id)
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
         next(new NotFoundError('Карточка с таким ID не найдена'));
+        return;
       }
       const cardOwner = card.owner.toString();
       if (cardOwner === req.user._id) {
-        return Card.deleteOne(card)
+        Card.deleteOne(card)
           .then(() => res.status(200).send(card));
       }
       next(new AccessError('У вас нет прав для удаления карточки'));
@@ -49,8 +51,9 @@ const likeCard = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     next(new ValidationError('Передан некорректный ID'));
+    return;
   }
-  return Card.findByIdAndUpdate(
+  Card.findByIdAndUpdate(
     id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
@@ -58,8 +61,9 @@ const likeCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         next(new NotFoundError('Карточка с таким ID не найдена'));
+        return;
       }
-      return res.status(200).send(card);
+      res.status(200).send(card);
     })
     .catch(next);
 };
@@ -68,8 +72,9 @@ const dislikeCard = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     next(new ValidationError('Передан некорректный ID'));
+    return;
   }
-  return Card.findByIdAndUpdate(
+  Card.findByIdAndUpdate(
     id,
     { $pull: { likes: req.user._id } },
     { new: true },
@@ -77,8 +82,9 @@ const dislikeCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         next(new NotFoundError('Карточка с таким ID не найдена'));
+        return;
       }
-      return res.status(200).send(card);
+      res.status(200).send(card);
     })
     .catch(next);
 };

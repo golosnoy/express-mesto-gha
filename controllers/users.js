@@ -24,14 +24,16 @@ const getUserById = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     next(new ValidationError('Передан некорректный ID'));
+    return;
   }
-  return User.findById(id)
+  User.findById(id)
     .orFail(new Error('Id not found'))
     .then((user) => res.status(200).send(user))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.message === 'Id not found') {
         next(new NotFoundError('Пользователь не найден'));
+        return;
       }
       next(err);
     });
@@ -56,6 +58,7 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) {
         next(new DuplicateError('Пользователь с таким email уже существует'));
+        return;
       }
       next(err);
     });
@@ -74,17 +77,20 @@ const updateProfile = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
   .then((user) => {
     if (!user) {
       next(new NotFoundError('Пользователь не найден'));
+      return;
     }
     const {
       name,
       about,
     } = user;
-    return res.status(200).send({
+    res.status(200).send({
       name,
       about,
     });
   })
-  .catch(next);
+  .catch((err) => {
+    next(err);
+  });
 
 const updateAvatar = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
   $set: {
@@ -99,7 +105,9 @@ const updateAvatar = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
 const getCurrentUser = (req, res, next) => User.findById(req.user._id)
   .orFail(new NotFoundError('Id not found'))
   .then((user) => res.status(200).send(user))
-  .catch(next);
+  .catch((err) => {
+    next(err);
+  });
 
 module.exports = {
   getUsers, getUserById, createUser, updateProfile, updateAvatar, getCurrentUser,
