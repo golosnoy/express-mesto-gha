@@ -15,13 +15,11 @@ const isValidId = (id) => {
   return false;
 };
 
-const getUsers = (req, res) => User.find()
+const getUsers = (req, res, next) => User.find()
   .then((users) => res.status(200).send(users))
-  .catch(() => res.status(500).send({
-    message: 'Ошибка сервера',
-  }));
+  .catch(next);
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     return res.status(400).send({
@@ -29,18 +27,19 @@ const getUserById = (req, res) => {
     });
   }
   return User.findById(id)
-    .orFail(new Error('Id not found'))
+    // .orFail(new Error('Id not found'))
     .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.message === 'Id not found') {
-        return res.status(404).send({
-          message: 'Запрашиваемый пользователь не найден',
-        });
-      }
-      return res.status(500).send({
-        message: 'Ошибка сервера',
-      });
-    });
+    .catch(next);
+  // .catch((err) => {
+  //   if (err.message === 'Id not found') {
+  //     return res.status(404).send({
+  //       message: 'Запрашиваемый пользователь не найден',
+  //     });
+  //   }
+  //   return res.status(500).send({
+  //     message: 'Ошибка сервера',
+  //   });
+  // });
 };
 
 const createUser = (req, res, next) => {
@@ -69,7 +68,7 @@ const createUser = (req, res, next) => {
     });
 };
 
-const updateProfile = (req, res) => User.findByIdAndUpdate(req.user._id, {
+const updateProfile = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
   $set: {
     name: req.body.name,
     about: req.body.about,
@@ -94,23 +93,24 @@ const updateProfile = (req, res) => User.findByIdAndUpdate(req.user._id, {
       about,
     });
   })
-  .catch((err) => {
-    if ((err.name === 'CastError')) {
-      return res.status(400).send({
-        message: 'Запрашиваемый пользователь не найден',
-      });
-    }
-    if (err.name === 'ValidationError') {
-      return res.status(400).send({
-        message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
-      });
-    }
-    return res.status(500).send({
-      message: 'Ошибка сервера',
-    });
-  });
+  .catch(next);
+  // .catch((err) => {
+  //   if ((err.name === 'CastError')) {
+  //     return res.status(400).send({
+  //       message: 'Запрашиваемый пользователь не найден',
+  //     });
+  //   }
+  //   if (err.name === 'ValidationError') {
+  //     return res.status(400).send({
+  //       message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
+  //     });
+  //   }
+  //   return res.status(500).send({
+  //     message: 'Ошибка сервера',
+  //   });
+  // });
 
-const updateAvatar = (req, res) => User.findByIdAndUpdate(req.user._id, {
+const updateAvatar = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
   $set: {
     avatar: req.body.avatar,
   },
@@ -118,21 +118,22 @@ const updateAvatar = (req, res) => User.findByIdAndUpdate(req.user._id, {
   returnDocument: 'after',
 })
   .then((user) => res.status(200).send(user))
-  .catch((err) => {
-    if ((err.name === 'CastError')) {
-      return res.status(400).send({
-        message: 'Запрашиваемый пользователь не найден',
-      });
-    }
-    if (err.name === 'ValidationError') {
-      return res.status(400).send({
-        message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
-      });
-    }
-    return res.status(500).send({
-      message: 'Ошибка сервера',
-    });
-  });
+  .catch(next);
+  // .catch((err) => {
+  //   if ((err.name === 'CastError')) {
+  //     return res.status(400).send({
+  //       message: 'Запрашиваемый пользователь не найден',
+  //     });
+  //   }
+  //   if (err.name === 'ValidationError') {
+  //     return res.status(400).send({
+  //       message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
+  //     });
+  //   }
+  //   return res.status(500).send({
+  //     message: 'Ошибка сервера',
+  //   });
+  // });
 
 const getCurrentUser = (req, res, next) => User.findById(req.user._id)
   .orFail(new NotFoundError('Id not found'))
