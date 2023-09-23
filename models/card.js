@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema({
   },
   owner: {
     type: ObjectId,
+    ref: 'User',
+    required: true,
   },
   likes: {
     type: [{ type: ObjectId }],

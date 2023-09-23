@@ -1,5 +1,9 @@
 const Card = require('../models/card');
 
+const ValidationError = require('../errors/ValidationError');
+const NotFoundError = require('../errors/NotFoundError');
+const AccessError = require('../errors/AccessError');
+
 const isValidId = (id) => {
   if (id.split('').length === 24) {
     const pattern = /[0-9a-z]{24}/;
@@ -17,25 +21,20 @@ const getCards = (req, res, next) => Card.find()
 const deleteCardById = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
-    return res.status(400).send({
-      message: 'Передан некорректный ID',
-    });
+    next(new ValidationError('Передан некорректный ID'));
   }
   return Card.findById(id)
+    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(404).send({
-          message: 'Карточка не найдена',
-        });
+        next(new NotFoundError('Карточка с таким ID не найдена'));
       }
       const cardOwner = card.owner.toString();
       if (cardOwner === req.user._id) {
-        return Card.findByIdAndDelete(id)
+        return Card.findOne(card)
           .then(() => res.status(200).send(card));
       }
-      return res.status(403).send({
-        message: 'Вы не автор карточки',
-      });
+      next(new AccessError('У вас нет прав для удаления карточки'));
     })
     .catch(next);
 };
@@ -49,9 +48,7 @@ const createCard = (req, res, next) => Card.create({ ...req.body, owner: req.use
 const likeCard = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
-    return res.status(400).send({
-      message: 'Передан некорректный ID',
-    });
+    next(new ValidationError('Передан некорректный ID'));
   }
   return Card.findByIdAndUpdate(
     id,
@@ -60,9 +57,7 @@ const likeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({
-          message: 'Карточка не найдена',
-        });
+        next(new NotFoundError('Карточка с таким ID не найдена'));
       }
       return res.status(200).send(card);
     })
@@ -72,9 +67,7 @@ const likeCard = (req, res, next) => {
 const dislikeCard = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
-    return res.status(400).send({
-      message: 'Передан некорректный ID',
-    });
+    next(new ValidationError('Передан некорректный ID'));
   }
   return Card.findByIdAndUpdate(
     id,
@@ -83,9 +76,7 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({
-          message: 'Карточка не найдена',
-        });
+        next(new NotFoundError('Карточка с таким ID не найдена'));
       }
       return res.status(200).send(card);
     })

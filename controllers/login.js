@@ -14,8 +14,8 @@ const login = (req, res, next) => {
         message: 'Авторизация прошла успешно',
       });
     })
-    .catch(() => {
-      next();
+    .catch((err) => {
+      next(err);
     });
 };
 

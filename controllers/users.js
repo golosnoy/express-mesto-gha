@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 
+const DuplicateError = require('../errors/DuplicateError');
+const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const isValidId = (id) => {
@@ -21,9 +23,7 @@ const getUsers = (req, res, next) => User.find()
 const getUserById = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
-    return res.status(400).send({
-      message: 'Передан некорректный ID',
-    });
+    next(new ValidationError('Передан некорректный ID'));
   }
   return User.findById(id)
     .orFail(new Error('Id not found'))
@@ -31,9 +31,7 @@ const getUserById = (req, res, next) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.message === 'Id not found') {
-        return res.status(404).send({
-          message: 'Запрашиваемый пользователь не найден',
-        });
+        next(new NotFoundError('Пользователь не найден'));
       }
       next(err);
     });
@@ -57,11 +55,9 @@ const createUser = (req, res, next) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.code === 11000) {
-        return res.status(409).send({
-          message: 'Пользователь с таким email уже существует',
-        });
+        next(new DuplicateError('Пользователь с таким email уже существует'));
       }
-      next();
+      next(err);
     });
 };
 
@@ -77,9 +73,7 @@ const updateProfile = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
 })
   .then((user) => {
     if (!user) {
-      return res.status(404).send({
-        message: 'Пользователь не найден',
-      });
+      next(new NotFoundError('Пользователь не найден'));
     }
     const {
       name,

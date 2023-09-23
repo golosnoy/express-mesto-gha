@@ -2,6 +2,8 @@ const router = require('express').Router();
 
 const { celebrate, Joi } = require('celebrate');
 
+const NotFoundError = require('../errors/NotFoundError');
+
 const urlPattern = /https?:\/\/(?:www.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|www.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|https?:\/\/(?:www.|(?!www))[a-zA-Z0-9]+.[^s]{2,}|www.[a-zA-Z0-9]+.[^s]{2,}/;
 
 const {
@@ -16,7 +18,7 @@ router.get('/cards', getCards);
 
 router.delete('/cards/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().alphanum().length(24),
+    id: Joi.string().length(24).hex().required(),
   }),
 }), deleteCardById);
 
@@ -40,10 +42,8 @@ router.delete('/cards/:id/likes', celebrate({
   }),
 }), dislikeCard);
 
-router.all('*', (req, res) => {
-  res.status(404).send({
-    message: 'Страница не найдена',
-  });
+router.all('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
 module.exports = router;
