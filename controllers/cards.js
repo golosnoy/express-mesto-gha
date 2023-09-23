@@ -42,7 +42,7 @@ const deleteCardById = (req, res, next) => {
     .catch(next);
 };
 
-const createCard = (req, res) => Card.create({ ...req.body }).then((card) => {
+const createCard = (req, res) => Card.create({ ...req.body, owner: req.user._id }).then((card) => {
   res.status(201).send(card);
 })
   .catch((err) => {
