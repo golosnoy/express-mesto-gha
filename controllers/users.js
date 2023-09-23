@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 
-// const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const isValidId = (id) => {
@@ -27,19 +26,17 @@ const getUserById = (req, res, next) => {
     });
   }
   return User.findById(id)
-    // .orFail(new Error('Id not found'))
+    .orFail(new Error('Id not found'))
     .then((user) => res.status(200).send(user))
-    .catch(next);
-  // .catch((err) => {
-  //   if (err.message === 'Id not found') {
-  //     return res.status(404).send({
-  //       message: 'Запрашиваемый пользователь не найден',
-  //     });
-  //   }
-  //   return res.status(500).send({
-  //     message: 'Ошибка сервера',
-  //   });
-  // });
+    // eslint-disable-next-line consistent-return
+    .catch((err) => {
+      if (err.message === 'Id not found') {
+        return res.status(404).send({
+          message: 'Запрашиваемый пользователь не найден',
+        });
+      }
+      next(err);
+    });
 };
 
 const createUser = (req, res, next) => {
@@ -94,21 +91,6 @@ const updateProfile = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
     });
   })
   .catch(next);
-  // .catch((err) => {
-  //   if ((err.name === 'CastError')) {
-  //     return res.status(400).send({
-  //       message: 'Запрашиваемый пользователь не найден',
-  //     });
-  //   }
-  //   if (err.name === 'ValidationError') {
-  //     return res.status(400).send({
-  //       message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
-  //     });
-  //   }
-  //   return res.status(500).send({
-  //     message: 'Ошибка сервера',
-  //   });
-  // });
 
 const updateAvatar = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
   $set: {
@@ -119,21 +101,6 @@ const updateAvatar = (req, res, next) => User.findByIdAndUpdate(req.user._id, {
 })
   .then((user) => res.status(200).send(user))
   .catch(next);
-  // .catch((err) => {
-  //   if ((err.name === 'CastError')) {
-  //     return res.status(400).send({
-  //       message: 'Запрашиваемый пользователь не найден',
-  //     });
-  //   }
-  //   if (err.name === 'ValidationError') {
-  //     return res.status(400).send({
-  //       message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
-  //     });
-  //   }
-  //   return res.status(500).send({
-  //     message: 'Ошибка сервера',
-  //   });
-  // });
 
 const getCurrentUser = (req, res, next) => User.findById(req.user._id)
   .orFail(new NotFoundError('Id not found'))
