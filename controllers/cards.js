@@ -31,7 +31,7 @@ const deleteCardById = (req, res, next) => {
       }
       const cardOwner = card.owner.toString();
       if (cardOwner === req.user._id) {
-        return Card.findOne(card)
+        return Card.deleteOne(card)
           .then(() => res.status(200).send(card));
       }
       next(new AccessError('У вас нет прав для удаления карточки'));
