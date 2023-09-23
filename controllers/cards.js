@@ -10,11 +10,9 @@ const isValidId = (id) => {
   return false;
 };
 
-const getCards = (req, res) => Card.find()
+const getCards = (req, res, next) => Card.find()
   .then((cards) => res.status(200).send(cards))
-  .catch(() => res.status(500).send({
-    message: 'Ошибка сервера',
-  }));
+  .catch(next);
 
 const deleteCardById = (req, res, next) => {
   const { id } = req.params;
@@ -47,18 +45,8 @@ const createCard = (req, res, next) => Card.create({ ...req.body, owner: req.use
     res.status(201).send(card);
   })
   .catch(next);
-  // .catch((err) => {
-  //   if (err.name === 'ValidationError') {
-  //     return res.status(400).send({
-  //       message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
-  //     });
-  //   }
-  //   return res.status(500).send({
-  //     message: 'Ошибка сервера',
-  //   });
-  // });
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     return res.status(400).send({
@@ -78,12 +66,10 @@ const likeCard = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({
-      message: 'Ошибка сервера',
-    }));
+    .catch(next);
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const { id } = req.params;
   if (!isValidId(id)) {
     return res.status(400).send({
@@ -103,9 +89,7 @@ const dislikeCard = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({
-      message: 'Ошибка сервера',
-    }));
+    .catch(next);
 };
 
 module.exports = {
