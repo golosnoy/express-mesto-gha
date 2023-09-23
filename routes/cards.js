@@ -14,18 +14,30 @@ router.get('/', (req, res) => {
 
 router.get('/cards', getCards);
 
-router.delete('/cards/:id', deleteCardById);
+router.delete('/cards/:id', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().alphanum().length(24),
+  }),
+}), deleteCardById);
 
 router.post('/cards', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().pattern(urlPattern),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(urlPattern),
   }),
 }), createCard);
 
-router.put('/cards/:id/likes', likeCard);
+router.put('/cards/:id/likes', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().alphanum().length(24),
+  }),
+}), likeCard);
 
-router.delete('/cards/:id/likes', dislikeCard);
+router.delete('/cards/:id/likes', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().alphanum().length(24),
+  }),
+}), dislikeCard);
 
 router.all('*', (req, res) => {
   res.status(404).send({
