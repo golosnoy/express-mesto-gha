@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const errorHandler = require('./middlewares/errorHandler');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
@@ -13,7 +14,10 @@ const auth = require('./middlewares/auth');
 const urlPattern = /https?:\/\/(?:www.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|www.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|https?:\/\/(?:www.|(?!www))[a-zA-Z0-9]+.[^s]{2,}|www.[a-zA-Z0-9]+.[^s]{2,}/;
 
 const { PORT = 3000 } = process.env;
+
 const app = express();
+
+app.use(cookieParser());
 
 app.use(bodyParser.json());
 

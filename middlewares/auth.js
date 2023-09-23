@@ -3,13 +3,11 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 
 // eslint-disable-next-line consistent-return
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const token = req.cookies.token;
 
-  if (!authorization) {
+  if (!token) {
     next(new UnauthorizedError('Необходима авторизация'));
   }
-
-  const token = authorization;
   let payload;
 
   try {
