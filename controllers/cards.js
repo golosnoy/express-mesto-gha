@@ -42,19 +42,21 @@ const deleteCardById = (req, res, next) => {
     .catch(next);
 };
 
-const createCard = (req, res) => Card.create({ ...req.body, owner: req.user._id }).then((card) => {
-  res.status(201).send(card);
-})
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      return res.status(400).send({
-        message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
-      });
-    }
-    return res.status(500).send({
-      message: 'Ошибка сервера',
-    });
-  });
+const createCard = (req, res, next) => Card.create({ ...req.body, owner: req.user._id })
+  .then((card) => {
+    res.status(201).send(card);
+  })
+  .catch(next);
+  // .catch((err) => {
+  //   if (err.name === 'ValidationError') {
+  //     return res.status(400).send({
+  //       message: `${Object.values(err.errors).map(() => err.message).join(', ')}`,
+  //     });
+  //   }
+  //   return res.status(500).send({
+  //     message: 'Ошибка сервера',
+  //   });
+  // });
 
 const likeCard = (req, res) => {
   const { id } = req.params;
