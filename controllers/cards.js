@@ -32,11 +32,12 @@ const deleteCardById = (req, res, next) => {
         return;
       }
       const cardOwner = card.owner.toString();
-      if (cardOwner === req.user._id) {
+      if (!cardOwner === req.user._id) {
         Card.deleteOne(card)
           .then(() => res.status(200).send(card));
+      } else {
+        next(new AccessError('У вас нет прав для удаления карточки'));
       }
-      next(new AccessError('У вас нет прав для удаления карточки'));
     })
     .catch(next);
 };
