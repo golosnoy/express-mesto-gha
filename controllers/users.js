@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 
-const UnauthorizedError = require('../errors/UnauthorizedError');
+// const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const isValidId = (id) => {
@@ -58,6 +58,7 @@ const createUser = (req, res, next) => {
       avatar: user.avatar,
       email: user.email,
     }))
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.code === 11000) {
         return res.status(409).send({

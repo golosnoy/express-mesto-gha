@@ -2,6 +2,8 @@ const router = require('express').Router();
 
 const { celebrate, Joi } = require('celebrate');
 
+const urlPattern = /https?:\/\/(?:www.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|www.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|https?:\/\/(?:www.|(?!www))[a-zA-Z0-9]+.[^s]{2,}|www.[a-zA-Z0-9]+.[^s]{2,}/;
+
 const {
   getUsers, getUserById, updateProfile, updateAvatar, getCurrentUser,
 } = require('../controllers/users');
@@ -29,7 +31,7 @@ router.patch('/users/me', celebrate({
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string(),
+    avatar: Joi.string().pattern(urlPattern),
   }),
 }), updateAvatar);
 
