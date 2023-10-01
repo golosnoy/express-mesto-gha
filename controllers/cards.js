@@ -32,8 +32,6 @@ const deleteCardById = (req, res, next) => {
         return;
       }
       const cardOwner = card.owner.toString();
-      console.log(cardOwner);
-      console.log(req.user._id);
       if (cardOwner === req.user._id) {
         Card.deleteOne(card)
           .then(() => res.status(200).send(card));
